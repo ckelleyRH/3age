@@ -2,6 +2,7 @@ import bugzilla
 import datetime
 import time
 
+from IssueTypes import IssueTypes
 from Queries import Queries
 
 bug_dict = {}
@@ -50,10 +51,9 @@ def handle_choice(choice):
 def get_next_bug():
     next_bug = None
     for query in Queries:
-        if len(bug_dict["%s_NEW" % query.name]) > 0:
-            next_bug = bug_dict["%s_NEW" % query.name][0]
-        elif len(bug_dict["%s_REGRESSIONS" % query.name]) > 0:
-            next_bug = bug_dict["%s_REGRESSIONS" % query.name][0]
+        for issue_type in IssueTypes:
+            if len(bug_dict["%s_%s" % (query.name, issue_type.value)]) > 0:
+                next_bug = bug_dict["%s_%s" % (query.name, issue_type.value)][0]
     return next_bug
             
 
@@ -62,6 +62,12 @@ def show_all_bugs():
         if len(bug_dict[query.name]) > 0:
             for bug in bug_dict[query.name]:
                 print(bug.id, bug.summary) 
+
+def find_bugs(bugs, issue_type):
+    if issue_type == IssueTypes.NEW.value:
+        return find_new_bugs(bugs)
+    if issue_type == IssueTypes.REGRESSIONS.value:
+        return find_regressions(bugs)
 
 def find_new_bugs(bugs):
     result = []
@@ -92,11 +98,15 @@ def refresh_bugs():
         query_to_send["include_fields"] = ["creator", "creation_time", "id", "summary", "weburl", "keywords", "flags"]
         all_bugs = bzapi.query(query_to_send)
         bug_dict[query.name] = all_bugs
-        bug_dict["%s_NEW" % query.name] = find_new_bugs(all_bugs)
-        bug_dict["%s_REGRESSIONS" % query.name] = find_regressions(all_bugs)
-        print("%s_TOTAL      : %d" % (query.name, len(all_bugs)))
-        print("%s_NEW        : %d" % (query.name, len(bug_dict["%s_NEW" % query.name])))
-        print("%s_REGRESSIONS: %d\n" % (query.name, len(bug_dict["%s_REGRESSIONS" % query.name])))
+        print("\n%s_TOTAL: %d" % (query.name, len(all_bugs)))
+        for issue_type in IssueTypes:
+            key_name = "%s_%s" % (query.name, issue_type.name)
+            bug_dict[key_name] = find_bugs(all_bugs, issue_type.value)
+            if bug_dict[key_name] is None:
+                num_issues = 0
+            else:
+                num_issues = len(bug_dict[key_name])
+            print("%s_%s: %d" % (query.name, issue_type.value, num_issues))
 
 if __name__ == "__main__":
     main()
