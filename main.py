@@ -19,19 +19,19 @@ default: show the next bug
 def main():
     proceed = True
     print("Welcome to 3age!")
-    print("Creating initial bug dictionary\n")
-    refresh_bugs()
+    print("Creating initial bug dictionary:")
+    proceed = refresh_bugs()
     while proceed:
         print(options)
         choice = input("What do you want to do? ")
         proceed = handle_choice(choice)
+    print("\nNo more bugs, time to go to the pub :-D")
 
 def handle_choice(choice):
     if choice == "":
         print("\nShowing the next bug\n")
         next_bug, type_string = get_next_bug()
         if next_bug is None:
-            print("No more bugs, time to go to the pub :-D")
             return False
         else:
             print(f'[{type_string}] - {next_bug.summary}\n{next_bug.weburl}') 
@@ -90,15 +90,18 @@ def find_regressions(bugs):
 def refresh_bugs():
     """
     Regenerates list of bugs to triage
+    @return: True if there are bugs to triage else False
     """
     URL = "bugzilla.redhat.com"
     bzapi = bugzilla.Bugzilla(URL)
     #bzapi.interactive_login()
+    total_bugs = 0
     for query in Queries:
         query_to_send = bzapi.url_to_query(query.value)
         query_to_send["include_fields"] = ["creator", "creation_time", "id", "summary", "weburl", "keywords", "flags"]
         all_bugs = bzapi.query(query_to_send)
         bug_dict[query.name] = all_bugs
+        total_bugs += len(all_bugs)
         print("\n%s_TOTAL: %d" % (query.name, len(all_bugs)))
         for issue_type in IssueTypes:
             key_name = "%s_%s" % (query.name, issue_type.name)
@@ -108,6 +111,7 @@ def refresh_bugs():
             else:
                 num_issues = len(bug_dict[key_name])
             print("%s_%s: %d" % (query.name, issue_type.value, num_issues))
+    return total_bugs != 0
 
 if __name__ == "__main__":
     main()
