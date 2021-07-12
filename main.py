@@ -1,11 +1,15 @@
 import bugzilla
 import datetime
+import pprint
 import time
 
 from IssueTypes import IssueTypes
 from Queries import Queries
 
 bug_dict = {}
+URL = "bugzilla.redhat.com"
+bzapi = bugzilla.Bugzilla(URL)
+#bzapi.interactive_login()
 
 options = """
 choose one of the following options:
@@ -14,6 +18,16 @@ default: show the next bug
       a: display all bugs
       q: quit
       r: refresh the list of bugs
+"""
+
+triage_options = """
+choose at least one of the following options:
+
+      c: add a comment (noop)
+      k: add keyword(s) (noop)
+      n: skip to next bug (noop)
+      q: quit (noop)
+      s: change issue status (noop)
 """
 
 def main():
@@ -34,9 +48,9 @@ def handle_choice(choice):
         if next_bug is None:
             return False
         else:
-            print(f'[{type_string}] - {next_bug.summary}\n{next_bug.weburl}') 
+            triage_bug(next_bug, type_string)
             return True
-    elif choice == "a":
+    if choice == "a":
         print("\nShowing all bugs\n")
         show_all_bugs()
         return True
@@ -50,6 +64,42 @@ def handle_choice(choice):
     else:
         print("\nInvalid option, please try again\n")
         return True
+
+def handle_triage_choice(choice):
+    if choice == "c":
+        print("\nAdding comment\n")
+        return True
+    elif choice == "k":
+        print("\nAdding keyword(s)\n")
+        return True
+    elif choice == "n":
+        print("\Skipping to next bug\n")
+        return True
+    elif choice == "q":
+        print("\nReturning to main menu\n")
+        return False
+    elif choice == "s":
+        print("\nChanging bug status\n")
+        return True
+    else:
+        print("\nInvalid option, please try again\n")
+        return True
+
+def triage_bug(next_bug, type_string):
+    still_triaging = True
+    bug = bzapi.getbug(next_bug.id)
+    bug_comments = bug.getcomments()
+    print(f'[{type_string}] - {bug.summary}\n{bug.weburl}')
+    print("\n  Product    = %s" % bug.product)
+    print("  Component  = %s" % bug.component)
+    print("  Status     = %s" % bug.status)
+    print("  Resolution = %s\n" % bug.resolution)
+    for comment in bug_comments:
+        print(f'{comment["creator"]}\n{comment["text"]}\n')
+    while still_triaging:
+        print(triage_options)
+        choice = input("What do you want to do? ")
+        still_triaging = handle_triage_choice(choice)
 
 def get_next_bug():
     next_bug = None
@@ -95,9 +145,6 @@ def refresh_bugs():
     Regenerates list of bugs to triage
     @return: True if there are bugs to triage else False
     """
-    URL = "bugzilla.redhat.com"
-    bzapi = bugzilla.Bugzilla(URL)
-    #bzapi.interactive_login()
     total_bugs = 0
     for query in Queries:
         query_to_send = bzapi.url_to_query(query.value)
