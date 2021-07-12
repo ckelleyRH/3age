@@ -29,12 +29,12 @@ def main():
 def handle_choice(choice):
     if choice == "":
         print("\nShowing the next bug\n")
-        next_bug = get_next_bug()
+        next_bug, type_string = get_next_bug()
         if next_bug is None:
             print("No more bugs, time to go to the pub :-D")
             return False
         else:
-            print(next_bug.id, next_bug.summary) 
+            print(f'[{type_string}] - {next_bug.summary}\n{next_bug.weburl}') 
             return True
     elif choice == "a":
         print("\nShowing all bugs\n")
@@ -52,16 +52,17 @@ def get_next_bug():
     next_bug = None
     for query in Queries:
         for issue_type in IssueTypes:
-            if len(bug_dict["%s_%s" % (query.name, issue_type.value)]) > 0:
-                next_bug = bug_dict["%s_%s" % (query.name, issue_type.value)][0]
-    return next_bug
+            type_string = "%s_%s" % (query.name, issue_type.value)
+            if len(bug_dict[type_string]) > 0:
+                next_bug = bug_dict[type_string][0]
+    return next_bug, type_string
             
 
 def show_all_bugs():
     for query in Queries:
         if len(bug_dict[query.name]) > 0:
             for bug in bug_dict[query.name]:
-                print(bug.id, bug.summary) 
+                print(f'{bug.summary}\n{bug.weburl}\n') 
 
 def find_bugs(bugs, issue_type):
     if issue_type == IssueTypes.NEW.value:
