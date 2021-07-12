@@ -9,7 +9,8 @@ bug_dict = {}
 options = """
 choose one of the following options:
 
-default: show the first bug
+default: show the next bug
+      a: display all bugs
       q: quit
       r: refresh the list of bugs
 """
@@ -26,17 +27,42 @@ def main():
 
 def handle_choice(choice):
     if choice == "":
-        print("Showing the next bug")
-        for bug in bug_dict["RHCS_TO_TRIAGE_NEW"]:
-            print(bug.id, bug.summary)
+        print("\nShowing the next bug\n")
+        next_bug = get_next_bug()
+        if next_bug is None:
+            print("No more bugs, time to go to the pub :-D")
+            return False
+        else:
+            print(next_bug.id, next_bug.summary) 
+            return True
+    elif choice == "a":
+        print("\nShowing all bugs\n")
+        show_all_bugs()
         return True
     elif choice == "q":
-        print("Thanks for playing!")
+        print("\nThanks for playing!\n")
         return False
     elif choice == "r":
-        print("Regenerating bug list")
+        print("\nRegenerating bug list\n")
+        refresh_bugs()
         return True
-    
+
+def get_next_bug():
+    next_bug = None
+    for query in Queries:
+        if len(bug_dict["%s_NEW" % query.name]) > 0:
+            next_bug = bug_dict["%s_NEW" % query.name][0]
+        elif len(bug_dict["%s_REGRESSIONS" % query.name]) > 0:
+            next_bug = bug_dict["%s_REGRESSIONS" % query.name][0]
+    return next_bug
+            
+
+def show_all_bugs():
+    for query in Queries:
+        if len(bug_dict[query.name]) > 0:
+            for bug in bug_dict[query.name]:
+                print(bug.id, bug.summary) 
+
 def find_new_bugs(bugs):
     result = []
     if len(bugs) > 0:
@@ -68,17 +94,9 @@ def refresh_bugs():
         bug_dict[query.name] = all_bugs
         bug_dict["%s_NEW" % query.name] = find_new_bugs(all_bugs)
         bug_dict["%s_REGRESSIONS" % query.name] = find_regressions(all_bugs)
-        print("%s: %d" % (query.name, len(all_bugs)))
-        print("    NEW: %d" % len(bug_dict["%s_NEW" % query.name]))
- #       for newbug in bug_dict["%s_NEW" % query.name]:
- #           print("        %s" % newbug.summary)
- #           print("        %s" % newbug.weburl)
- #           print("\n")
-        print("    REGRESSIONS: %d\n" % len(bug_dict["%s_REGRESSIONS" % query.name]))
- #       for regression in bug_dict["%s_REGRESSIONS" % query.name]:
- #           print("        %s" % regression.summary)
- #           print("        %s" % regression.weburl)
- #           print("\n")
+        print("%s_TOTAL      : %d" % (query.name, len(all_bugs)))
+        print("%s_NEW        : %d" % (query.name, len(bug_dict["%s_NEW" % query.name])))
+        print("%s_REGRESSIONS: %d\n" % (query.name, len(bug_dict["%s_REGRESSIONS" % query.name])))
 
 if __name__ == "__main__":
     main()
