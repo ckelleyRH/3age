@@ -47,6 +47,9 @@ def handle_choice(choice):
         print("\nRegenerating bug list\n")
         refresh_bugs()
         return True
+    else:
+        print("\nInvalid option, please try again\n")
+        return True
 
 def get_next_bug():
     next_bug = None
