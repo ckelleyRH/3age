@@ -122,6 +122,8 @@ def find_bugs(bugs, issue_type):
         return find_new_bugs(bugs)
     if issue_type == IssueTypes.REGRESSIONS.value:
         return find_regressions(bugs)
+    if issue_type == IssueTypes.OLD.value:
+        return find_old_bugs(bugs)
 
 def find_new_bugs(bugs):
     result = []
@@ -129,6 +131,15 @@ def find_new_bugs(bugs):
         for bug in bugs:
             creation_time = datetime.datetime.strptime(str(bug.creation_time), '%Y%m%dT%H:%M:%S')
             if datetime.datetime.now() - creation_time < datetime.timedelta(days=14):
+                result.append(bug)
+    return result
+
+def find_old_bugs(bugs):
+    result = []
+    if len(bugs) > 0:
+        for bug in bugs:
+            creation_time = datetime.datetime.strptime(str(bug.creation_time), '%Y%m%dT%H:%M:%S')
+            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*15):
                 result.append(bug)
     return result
 

@@ -4,3 +4,4 @@ class IssueTypes(Enum):
 
     REGRESSIONS = "REGRESSIONS"
     NEW = "NEW"
+    OLD = "OLD"
