@@ -3,10 +3,12 @@ import datetime
 import pprint
 import time
 
-from IssueTypes import IssueTypes
+from IssueTypes import IssueTypes 
 from Queries import Queries
 
 bug_dict = {}
+queries = set(query.name for query in Queries)
+issue_types = set(issue_type.value for issue_type in IssueTypes)
 URL = "bugzilla.redhat.com"
 bzapi = bugzilla.Bugzilla(URL)
 #bzapi.interactive_login()
@@ -14,10 +16,13 @@ bzapi = bugzilla.Bugzilla(URL)
 options = """
 choose one of the following options:
 
-default: show the next bug
-      a: display all bugs
-      q: quit
-      r: refresh the list of bugs
+              return: show the next bug
+<query>_<issue type>: type a query and/or issue type to return that list of bugs
+                   a: display all bugs
+                   i: show list of issue types
+                   q: show list of querys
+                   r: refresh the list of bugs
+                   x: exit
 """
 
 triage_options = """
@@ -50,20 +55,36 @@ def handle_choice(choice):
         else:
             triage_bug(next_bug, type_string)
             return True
-    if choice == "a":
+    elif choice == "a":
         print("\nShowing all bugs\n")
         show_all_bugs()
         return True
-    elif choice == "q":
+    elif choice == "e":
         print("\nThanks for playing!\n")
         return False
+    elif choice == "i":
+        print("\nAvailable issue types:\n")
+        show_issue_types_list()
+        return True
+    elif choice == "q":
+        print("\nAvailable queries:\n")
+        show_query_list()
+        return True
     elif choice == "r":
         print("\nRegenerating bug list\n")
         refresh_bugs()
         return True
     else:
-        print("\nInvalid option, please try again\n")
-        return True
+        query, issue_type = parse_choice(choice)
+        if query and issue_type:
+            print(bug_dict[f'{query}_{issue_type}'])
+            return True
+        elif query:
+            print(bug_dict[query])
+        elif issue_type:
+            print(bug_dict[issue_type])
+        else:
+            print("\nInvalid option, please try again\n")
 
 def handle_triage_choice(choice):
     if choice == "c":
@@ -101,6 +122,20 @@ def triage_bug(next_bug, type_string):
         choice = input("What do you want to do? ")
         still_triaging = handle_triage_choice(choice)
 
+def parse_choice(choice):
+    query = None
+    issue_type = None
+    choice_list = choice.split("_", 2)[:2] # strip additional args 
+    if choice_list[0] in queries:
+        query = choice_list[0]
+    if choice_list[0] in issue_types:
+        issue_type = choice_list[0]
+    if len(choice_list) == 2:
+        if choice_list[1] in issue_types:
+            issue_type = choice_list[1]
+    return query, issue_type
+        
+        
 def get_next_bug():
     next_bug = None
     for query in Queries:
@@ -116,6 +151,14 @@ def show_all_bugs():
         if len(bug_dict[query.name]) > 0:
             for bug in bug_dict[query.name]:
                 print(f'{bug.summary}\n{bug.weburl}\n') 
+
+def show_issue_types_list():
+    for issue_type in IssueTypes:
+        print(issue_type.name) 
+
+def show_query_list():
+    for query in Queries:
+        print(query.name)
 
 def find_bugs(bugs, issue_type):
     if issue_type == IssueTypes.NEW.value:
@@ -139,7 +182,7 @@ def find_old_bugs(bugs):
     if len(bugs) > 0:
         for bug in bugs:
             creation_time = datetime.datetime.strptime(str(bug.creation_time), '%Y%m%dT%H:%M:%S')
-            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*15):
+            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*10):
                 result.append(bug)
     return result
 
