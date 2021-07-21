@@ -16,13 +16,14 @@ bzapi = bugzilla.Bugzilla(URL)
 options = """
 choose one of the following options:
 
-              return: show the next bug
-<query>_<issue type>: type a query and/or issue type to return that list of bugs
-                   a: display all bugs
-                   i: show list of issue types
-                   q: show list of querys
-                   r: refresh the list of bugs
-                   x: exit
+                      return: show the next bug
+        <query>_<issue type>: type a query and/or issue type to return that list of bugs
+<query>_<issue type>_<index>: display info for a bug from a list
+                           a: display all bugs
+                           i: show list of issue types
+                           q: show list of querys
+                           r: refresh the list of bugs
+                           x: exit
 """
 
 triage_options = """
@@ -71,14 +72,23 @@ def handle_choice(choice):
         print("\nRegenerating bug list\n")
         refresh_bugs()
     else:
-        query, issue_type = parse_choice(choice)
+        query, issue_type, index = parse_choice(choice)
         if query and issue_type:
-            show_bugs(bug_dict[f'{query}_{issue_type}'])
+            type_string = "%s_%s" % (query, issue_type)
+            if index:
+                triage_bug(bug_dict[f'{type_string}'][index], type_string)
+            else:
+                show_bugs(bug_dict[f'{type_string}'])
         elif query:
-            show_bugs(bug_dict[query])
+            if index:
+                triage_bug(bug_dict[query][index], query)
+            else:
+                show_bugs(bug_dict[query])
         elif issue_type:
-            print(issue_type)
-            show_bugs(bug_dict[issue_type])
+            if index:
+                triage_bug(bug_dict[issue_type][index], issue_type)
+            else:
+                show_bugs(bug_dict[issue_type])
         else:
             print("\nInvalid option, please try again\n")
     return proceed
@@ -110,7 +120,7 @@ def triage_bug(next_bug, type_string):
     print("  Status     = %s" % bug.status)
     print("  Resolution = %s\n" % bug.resolution)
     for comment in bug_comments:
-        print(f'{comment["creator"]}\n{comment["text"]}\n')
+        print(f'****{comment["creator"]} said:****\n{comment["text"]}\n****\n')
     while still_triaging:
         print(triage_options)
         choice = input("What do you want to do? ")
@@ -119,16 +129,35 @@ def triage_bug(next_bug, type_string):
 def parse_choice(choice):
     query = None
     issue_type = None
-    choice_list = choice.split("_", 2)[:2] # strip additional args 
-    if choice_list[0] in queries:
-        query = choice_list[0]
-    if choice_list[0] in issue_types:
-        issue_type = choice_list[0]
-    if len(choice_list) == 2:
+    index = None
+    choice_list = choice.split("_", 3)[:3] # strip additional args
+    print(choice_list)
+    if len(choice_list) == 3:
+        if choice_list[0] in queries:
+            query = choice_list[0]
         if choice_list[1] in issue_types:
             issue_type = choice_list[1]
-    return query, issue_type
-        
+        try:
+            index = int(choice_list[2])
+        except ValueError:
+            pass
+    if len(choice_list) == 2:
+        if choice_list[0] in queries:
+            query = choice_list[0]
+        if choice_list[0] in issue_types:
+            issue_type = choice_list[0]
+        if choice_list[1] in issue_types:
+            issue_type = choice_list[1]
+        try:
+            index = int(choice_list[1])
+        except ValueError:
+            pass 
+    if len(choice_list) == 1:
+        if choice_list[0] in queries:
+            query = choice_list[0]
+        if choice_list[0] in issue_types:
+            issue_type = choice_list[0]
+    return query, issue_type, index
         
 def get_next_bug():
     next_bug = None
@@ -142,10 +171,8 @@ def get_next_bug():
 
 def show_all_bugs():
     for query in Queries:
-        if len(bug_dict[query.name]) > 0:
-            for bug in bug_dict[query.name]:
-                print(f'{bug.summary}\n{bug.weburl}\n')
-    print(bug_dict.keys())
+        print(f'{query.name}:')
+        show_bugs(bug_dict[query.name])
 
 def show_issue_types_list():
     for issue_type in IssueTypes:
@@ -159,8 +186,10 @@ def show_bugs(bugs):
     if len(bugs) == 0:
         print("\nNo bugs to show\n")
         return
+    i = 0
     for bug in bugs:
-        print(f'\n{bug.summary}\n{bug.weburl}\n') 
+        print(f'\n[{i}] {bug.summary}\n{bug.weburl}\n')
+        i += 1 
 
 def find_bugs(bugs, issue_type):
     if issue_type == IssueTypes.NEW.value:
