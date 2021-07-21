@@ -38,7 +38,7 @@ choose at least one of the following options:
 def main():
     proceed = True
     print("Welcome to 3age!")
-    print("Creating initial bug dictionary:")
+    print("Creating initial bug dictionary:\n")
     proceed = refresh_bugs()
     while proceed:
         print(options)
@@ -47,33 +47,29 @@ def main():
     print("\nNo more bugs, time to go to the pub :-D")
 
 def handle_choice(choice):
+    proceed = True
     if choice == "":
         print("\nShowing the next bug\n")
         next_bug, type_string = get_next_bug()
         if next_bug is None:
-            return False
+            proceed = False
         else:
             triage_bug(next_bug, type_string)
-            return True
     elif choice == "a":
         print("\nShowing all bugs\n")
         show_all_bugs()
-        return True
     elif choice == "e":
         print("\nThanks for playing!\n")
-        return False
+        proceed = False
     elif choice == "i":
         print("\nAvailable issue types:\n")
         show_issue_types_list()
-        return True
     elif choice == "q":
         print("\nAvailable queries:\n")
         show_query_list()
-        return True
     elif choice == "r":
         print("\nRegenerating bug list\n")
         refresh_bugs()
-        return True
     else:
         query, issue_type = parse_choice(choice)
         if query and issue_type:
@@ -81,30 +77,28 @@ def handle_choice(choice):
         elif query:
             show_bugs(bug_dict[query])
         elif issue_type:
+            print(issue_type)
             show_bugs(bug_dict[issue_type])
         else:
             print("\nInvalid option, please try again\n")
-        return True
+    return proceed
 
 def handle_triage_choice(choice):
+    proceed = True
     if choice == "c":
         print("\nAdding comment\n")
-        return True
     elif choice == "k":
         print("\nAdding keyword(s)\n")
-        return True
     elif choice == "n":
         print("\Skipping to next bug\n")
-        return True
     elif choice == "q":
         print("\nReturning to main menu\n")
-        return False
+        proceed = False
     elif choice == "s":
         print("\nChanging bug status\n")
-        return True
     else:
         print("\nInvalid option, please try again\n")
-        return True
+    return proceed
 
 def triage_bug(next_bug, type_string):
     still_triaging = True
@@ -150,7 +144,8 @@ def show_all_bugs():
     for query in Queries:
         if len(bug_dict[query.name]) > 0:
             for bug in bug_dict[query.name]:
-                print(f'{bug.summary}\n{bug.weburl}\n') 
+                print(f'{bug.summary}\n{bug.weburl}\n')
+    print(bug_dict.keys())
 
 def show_issue_types_list():
     for issue_type in IssueTypes:
@@ -213,15 +208,16 @@ def refresh_bugs():
         all_bugs = bzapi.query(query_to_send)
         bug_dict[query.name] = all_bugs
         total_bugs += len(all_bugs)
-        print("\n%s_TOTAL: %d" % (query.name, len(all_bugs)))
         for issue_type in IssueTypes:
             key_name = "%s_%s" % (query.name, issue_type.name)
             bug_dict[key_name] = find_bugs(all_bugs, issue_type.value)
-            if bug_dict[key_name] is None:
-                num_issues = 0
+            if issue_type.value in bug_dict.keys():
+                bug_dict[issue_type.value] = bug_dict[issue_type.value] + bug_dict[key_name]
             else:
-                num_issues = len(bug_dict[key_name])
-            print("%s_%s: %d" % (query.name, issue_type.value, num_issues))
+                bug_dict[issue_type.value] = bug_dict[key_name]
+    for key in sorted(bug_dict.keys()):
+        print("%s: %d" % (key, len(bug_dict[key])))
+
     return total_bugs != 0
 
 if __name__ == "__main__":
