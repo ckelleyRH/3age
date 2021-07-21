@@ -77,14 +77,14 @@ def handle_choice(choice):
     else:
         query, issue_type = parse_choice(choice)
         if query and issue_type:
-            print(bug_dict[f'{query}_{issue_type}'])
-            return True
+            show_bugs(bug_dict[f'{query}_{issue_type}'])
         elif query:
-            print(bug_dict[query])
+            show_bugs(bug_dict[query])
         elif issue_type:
-            print(bug_dict[issue_type])
+            show_bugs(bug_dict[issue_type])
         else:
             print("\nInvalid option, please try again\n")
+        return True
 
 def handle_triage_choice(choice):
     if choice == "c":
@@ -159,6 +159,13 @@ def show_issue_types_list():
 def show_query_list():
     for query in Queries:
         print(query.name)
+
+def show_bugs(bugs):
+    if len(bugs) == 0:
+        print("\nNo bugs to show\n")
+        return
+    for bug in bugs:
+        print(f'\n{bug.summary}\n{bug.weburl}\n') 
 
 def find_bugs(bugs, issue_type):
     if issue_type == IssueTypes.NEW.value:
