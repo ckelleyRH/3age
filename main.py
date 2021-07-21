@@ -76,17 +76,20 @@ def handle_choice(choice):
         if query and issue_type:
             type_string = "%s_%s" % (query, issue_type)
             if index:
-                triage_bug(bug_dict[f'{type_string}'][index], type_string)
+                if index < len(bug_dict[f'{type_string}']):
+                    triage_bug(bug_dict[f'{type_string}'][index], type_string)
             else:
                 show_bugs(bug_dict[f'{type_string}'])
         elif query:
             if index:
-                triage_bug(bug_dict[query][index], query)
+                if index < len(bug_dict[query]):
+                    triage_bug(bug_dict[query][index], query)
             else:
                 show_bugs(bug_dict[query])
         elif issue_type:
             if index:
-                triage_bug(bug_dict[issue_type][index], issue_type)
+                if index < len(bug_dict[issue_type]):
+                    triage_bug(bug_dict[issue_type][index], issue_type)
             else:
                 show_bugs(bug_dict[issue_type])
         else:
@@ -114,11 +117,12 @@ def triage_bug(next_bug, type_string):
     still_triaging = True
     bug = bzapi.getbug(next_bug.id)
     bug_comments = bug.getcomments()
-    print(f'[{type_string}] - {bug.summary}\n{bug.weburl}')
-    print("\n  Product    = %s" % bug.product)
-    print("  Component  = %s" % bug.component)
-    print("  Status     = %s" % bug.status)
-    print("  Resolution = %s\n" % bug.resolution)
+    print(f'[{type_string}] - {bug.summary}\n{bug.weburl}\n')
+    print(f'Creator    = {bug.creator} at {bug.creation_time}')
+    print(f'Component  = {bug.component} in component {bug.product}')
+    print(f'Keywords   = {bug.keywords}')
+    print(f'Status     = {bug.status}')
+    print(f'Flags      = {bug.flags}\n')
     for comment in bug_comments:
         print(f'****{comment["creator"]} said:****\n{comment["text"]}\n****\n')
     while still_triaging:
