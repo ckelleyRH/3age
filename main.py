@@ -36,6 +36,11 @@ choose at least one of the following options:
       s: change issue status (noop)
 """
 
+close_bug_comment = """
+This issue was automatically closed due to its age.
+If you would like this issue to be reconsidered by the development team please re-open the issue.
+"""
+
 def main():
     proceed = True
     print("Welcome to 3age!")
@@ -72,34 +77,16 @@ def handle_choice(choice):
         print("\nRegenerating bug list\n")
         refresh_bugs()
     else:
-        query, issue_type, index = parse_choice(choice)
-        if query and issue_type:
-            type_string = "%s_%s" % (query, issue_type)
-            if index:
-                if index < len(bug_dict[f'{type_string}']):
-                    triage_bug(bug_dict[f'{type_string}'][index], type_string)
-            else:
-                show_bugs(bug_dict[f'{type_string}'])
-        elif query:
-            if index:
-                if index < len(bug_dict[query]):
-                    triage_bug(bug_dict[query][index], query)
-            else:
-                show_bugs(bug_dict[query])
-        elif issue_type:
-            if index:
-                if index < len(bug_dict[issue_type]):
-                    triage_bug(bug_dict[issue_type][index], issue_type)
-            else:
-                show_bugs(bug_dict[issue_type])
-        else:
-            print("\nInvalid option, please try again\n")
+        resolve_complex_choice(choice)
     return proceed
 
-def handle_triage_choice(choice):
+def handle_triage_choice(choice, bug):
     proceed = True
     if choice == "c":
         print("\nAdding comment\n")
+    if choice == "close":
+        print("\nClosing bug\n")
+        close_bug(bug)
     elif choice == "k":
         print("\nAdding keyword(s)\n")
     elif choice == "n":
@@ -112,6 +99,30 @@ def handle_triage_choice(choice):
     else:
         print("\nInvalid option, please try again\n")
     return proceed
+
+def resolve_complex_choice(choice):
+    query, issue_type, index = parse_choice(choice)
+    if query and issue_type:
+        type_string = "%s_%s" % (query, issue_type)
+        if index:
+            if index < len(bug_dict[f'{type_string}']):
+                triage_bug(bug_dict[f'{type_string}'][index], type_string)
+        else:
+            show_bugs(bug_dict[f'{type_string}'])
+    elif query:
+        if index:
+            if index < len(bug_dict[query]):
+                triage_bug(bug_dict[query][index], query)
+        else:
+            show_bugs(bug_dict[query])
+    elif issue_type:
+        if index:
+            if index < len(bug_dict[issue_type]):
+                triage_bug(bug_dict[issue_type][index], issue_type)
+        else:
+            show_bugs(bug_dict[issue_type])
+    else:
+        print("\nInvalid option, please try again\n")
 
 def triage_bug(next_bug, type_string):
     still_triaging = True
@@ -128,7 +139,7 @@ def triage_bug(next_bug, type_string):
     while still_triaging:
         print(triage_options)
         choice = input("What do you want to do? ")
-        still_triaging = handle_triage_choice(choice)
+        still_triaging = handle_triage_choice(choice, bug)
 
 def parse_choice(choice):
     query = None
@@ -171,7 +182,19 @@ def get_next_bug():
             if len(bug_dict[type_string]) > 0:
                 next_bug = bug_dict[type_string][0]
     return next_bug, type_string
-            
+
+def close_bugs(bugs, resolution="WONTFIX", comment=close_bug_comment):
+    choice = input(f'You are about to close {len(bugs)} bugs as {resolution}, are you sure? (y)')
+    if choice == "y":
+        for bug in bugs:
+            close_bug(bug, resolution, comment)
+        refresh_bugs()
+
+def close_bug(bug, resolution="WONTFIX", comment=close_bug_comment):
+    choice = input(f'You are about to close this bug as {resolution}, with message:\n{comment}\nAre you sure? (y)')
+    if choice == "y":
+        bug.close(resolution="WONTFIX", comment=close_bug)
+        refresh_bugs()
 
 def show_all_bugs():
     for query in Queries:
