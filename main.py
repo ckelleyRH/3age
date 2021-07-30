@@ -193,7 +193,7 @@ def close_bugs(bugs, resolution="WONTFIX", comment=close_bug_comment):
 def close_bug(bug, resolution="WONTFIX", comment=close_bug_comment):
     choice = input(f'You are about to close this bug as {resolution}, with message:\n{comment}\nAre you sure? (y)')
     if choice == "y":
-        bug.close(resolution="WONTFIX", comment=close_bug)
+        bug.close(resolution="WONTFIX", comment=comment)
         refresh_bugs()
 
 def show_all_bugs():
