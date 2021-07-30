@@ -20,6 +20,7 @@ choose one of the following options:
         <query>_<issue type>: type a query and/or issue type to return that list of bugs
 <query>_<issue type>_<index>: display info for a bug from a list
                            a: display all bugs
+                           b: bulk close
                            i: show list of issue types
                            q: show list of querys
                            r: refresh the list of bugs
@@ -64,6 +65,9 @@ def handle_choice(choice):
     elif choice == "a":
         print("\nShowing all bugs\n")
         show_all_bugs()
+    elif choice == "b":
+        print("\nBulk closing bugs\n")
+        close_bugs()
     elif choice == "e":
         print("\nThanks for playing!\n")
         proceed = False
@@ -87,6 +91,7 @@ def handle_triage_choice(choice, bug):
     if choice == "close":
         print("\nClosing bug\n")
         close_bug(bug)
+        refresh_bugs()
     elif choice == "k":
         print("\nAdding keyword(s)\n")
     elif choice == "n":
@@ -183,18 +188,24 @@ def get_next_bug():
                 next_bug = bug_dict[type_string][0]
     return next_bug, type_string
 
-def close_bugs(bugs, resolution="WONTFIX", comment=close_bug_comment):
-    choice = input(f'You are about to close {len(bugs)} bugs as {resolution}, are you sure? (y)')
+def close_bugs():
+    resolution = "WONTFIX"
+    key = input("Provide dictionary key for bugs to clear: ")
+    if key not in bug_dict.keys():
+        print("Invalid key")
+        return
+    choice = input(f'You are about to close {len(bug_dict[key])} bugs as {resolution}, are you sure? (y)')
     if choice == "y":
-        for bug in bugs:
-            close_bug(bug, resolution, comment)
+        for bug in bug_dict[key]:
+            close_bug(bug, resolution, close_bug_comment, False)
         refresh_bugs()
 
-def close_bug(bug, resolution="WONTFIX", comment=close_bug_comment):
-    choice = input(f'You are about to close this bug as {resolution}, with message:\n{comment}\nAre you sure? (y)')
-    if choice == "y":
-        bug.close(resolution="WONTFIX", comment=comment)
-        refresh_bugs()
+def close_bug(bug, resolution="WONTFIX", comment=close_bug_comment, confirm=True):
+    if confirm == True:
+        choice = input(f'You are about to close this bug as {resolution}, with message:\n{comment}\nAre you sure? (y)')
+        if choice != "y":
+            return
+    bug.close(resolution="WONTFIX", comment=comment)
 
 def show_all_bugs():
     for query in Queries:
