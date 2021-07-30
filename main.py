@@ -103,7 +103,7 @@ def handle_triage_choice(choice, bug):
 def resolve_complex_choice(choice):
     query, issue_type, index = parse_choice(choice)
     if query and issue_type:
-        type_string = "%s_%s" % (query, issue_type)
+        type_string = f'{query}_{issue_type}'
         if index:
             if index < len(bug_dict[f'{type_string}']):
                 triage_bug(bug_dict[f'{type_string}'][index], type_string)
@@ -178,7 +178,7 @@ def get_next_bug():
     next_bug = None
     for query in Queries:
         for issue_type in IssueTypes:
-            type_string = "%s_%s" % (query.name, issue_type.value)
+            type_string = f'{query.name}_{issue_type.value}'
             if len(bug_dict[type_string]) > 0:
                 next_bug = bug_dict[type_string][0]
     return next_bug, type_string
@@ -266,14 +266,14 @@ def refresh_bugs():
         bug_dict[query.name] = all_bugs
         total_bugs += len(all_bugs)
         for issue_type in IssueTypes:
-            key_name = "%s_%s" % (query.name, issue_type.name)
+            key_name = f'{query.name}_{issue_type.name}'
             bug_dict[key_name] = find_bugs(all_bugs, issue_type.value)
             if issue_type.value in bug_dict.keys():
                 bug_dict[issue_type.value] = bug_dict[issue_type.value] + bug_dict[key_name]
             else:
                 bug_dict[issue_type.value] = bug_dict[key_name]
     for key in sorted(bug_dict.keys()):
-        print("%s: %d" % (key, len(bug_dict[key])))
+        print(f'{key:<16}: {len(bug_dict[key]):>3}')
 
     return total_bugs != 0
 
