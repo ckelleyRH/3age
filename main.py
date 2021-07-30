@@ -258,6 +258,7 @@ def refresh_bugs():
     @return: True if there are bugs to triage else False
     """
     total_bugs = 0
+    bug_dict.clear()
     for query in Queries:
         query_to_send = bzapi.url_to_query(query.value)
         query_to_send["include_fields"] = ["creator", "creation_time", "id", "summary", "weburl", "keywords", "flags"]
