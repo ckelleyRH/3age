@@ -251,7 +251,7 @@ def find_old_bugs(bugs):
     if len(bugs) > 0:
         for bug in bugs:
             creation_time = datetime.datetime.strptime(str(bug.creation_time), '%Y%m%dT%H:%M:%S')
-            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*10):
+            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*7):
                 result.append(bug)
     return result
 
