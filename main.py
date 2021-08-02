@@ -52,15 +52,12 @@ If you would like this issue to be reconsidered by the development team please r
 """
 
 def main():
-    refresh_bugs()
-    print(bug_dict.keys())
-    return """
-        <h1>Welcome to 3age!</h1>
-        </br>
-        <a href="http://127.0.0.1:5000/github">Github Issues</a>
-        </br>
-        <a href="http://127.0.0.1:5000/bugzilla">Bugzilla Issues</a>
-        """
+    num_bugzilla_issues = refresh_bugs()
+    num_github_issues = 900
+    return render_template(
+        'home.html',
+        num_github_issues=num_github_issues,
+        num_bugzilla_issues=num_bugzilla_issues)
 
     #===========================================================================
     # proceed = True
@@ -308,7 +305,7 @@ def refresh_bugs():
         print(f'{key:<16}: {len(bug_dict[key]):>3}')
         sorted_bug_dict[key] = bug_dict[key]
 
-    return total_bugs != 0
+    return total_bugs
 
 def show_github_repos():
     return """

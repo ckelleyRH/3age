@@ -1,0 +1,20 @@
+<style>
+body {
+    background-color: black;
+    color: white;
+}
+a {color: forestgreen;}
+</style>
+<title>Welcome to 3age!</title>
+<h1>Welcome to 3age!</h1>
+<h2>Untriaged issues</h2>
+<table cellpadding="5" cellspacing="5">
+    <tr>
+        <th><a href="/github">Github Issues</a></th>
+        <td> {{ num_github_issues }} </td>
+    </tr>
+    <tr>
+        <th><a href="/bugzilla">Bugzilla Issues</a></th>
+        <td> {{ num_bugzilla_issues }} </td>
+    </tr>
+</table>
