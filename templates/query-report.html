@@ -1,0 +1,16 @@
+<style>
+body {
+    background-color: black;
+    color: white;
+}
+a {color: forestgreen;}
+</style>
+<title>{{ query }} Issues</title>
+<table cellpadding="5" cellspacing="5">
+{% for bug in bugs %}
+    <tr>
+        <th><a href="{{ bug.weburl }}">{{ bug.id }}</a></th>
+        <td> {{ bug.summary }} </td>
+    </tr>
+{% endfor %}
+</table>

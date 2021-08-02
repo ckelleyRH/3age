@@ -336,10 +336,8 @@ def get_bugzilla_issues():
     return render_template('report-template.html', result=sorted_bug_dict)
 
 def get_bugzilla_issues_by_query(query):
-    result = ""
-    for bug in bug_dict[query]:
-        result += f'<a href="{bug.weburl}">{bug.id}</a>: {bug.summary}</br></br>'
-    return result
+    return render_template('query-report.html', query=query, bugs=bug_dict[query])
+
         
 def setup_github_repos():
     total_issues = 0
