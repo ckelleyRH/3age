@@ -1,11 +1,14 @@
 import bugzilla
+from github import Github
 import datetime
 import pprint
 import time
 
 from IssueTypes import IssueTypes 
 from Queries import Queries
+from pygit2.callbacks import git_clone_options
 
+github_repos = []
 bug_dict = {}
 queries = set(query.name for query in Queries)
 issue_types = set(issue_type.value for issue_type in IssueTypes)
@@ -43,15 +46,27 @@ If you would like this issue to be reconsidered by the development team please r
 """
 
 def main():
-    proceed = True
-    print("Welcome to 3age!")
-    print("Creating initial bug dictionary:\n")
-    proceed = refresh_bugs()
-    while proceed:
-        print(options)
-        choice = input("What do you want to do? ")
-        proceed = handle_choice(choice)
-    print("\nNo more bugs, time to go to the pub :-D")
+    g = Github("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")
+    jss_repo = g.get_repo("dogtagpki/jss")
+    i = 0
+    for issue in jss_repo.get_issues():
+        print(issue.title)
+        i += 1
+    print(i)
+        
+        # to see all the available attributes and methods
+        #print(dir(repo))
+    #===========================================================================
+    # proceed = True
+    # print("Welcome to 3age!")
+    # print("Creating initial bug dictionary:\n")
+    # proceed = refresh_bugs()
+    # while proceed:
+    #     print(options)
+    #     choice = input("What do you want to do? ")
+    #     proceed = handle_choice(choice)
+    # print("\nNo more bugs, time to go to the pub :-D")
+    #===========================================================================
 
 def handle_choice(choice):
     proceed = True
