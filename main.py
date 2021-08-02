@@ -7,6 +7,7 @@ import time
 from flask import render_template
 from IssueTypes import IssueTypes 
 from Queries import Queries
+from Repos import Repos
 from pygit2.callbacks import git_clone_options
 
 github_repos = []
@@ -17,10 +18,8 @@ bzapi = bugzilla.Bugzilla(URL)
 #bzapi.interactive_login()
 queries = set(query.name for query in Queries)
 issue_types = set(issue_type.value for issue_type in IssueTypes)
+repos = set(repo.name for repo in Repos)
 g = Github("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")
-jss_repo = g.get_repo("dogtagpki/jss")
-pki_repo = g.get_repo("dogtagpki/pki")
-tomcatjss_repo = g.get_repo("dogtagpki/tomcatjss")
 
 options = """
 choose one of the following options:
@@ -53,7 +52,7 @@ If you would like this issue to be reconsidered by the development team please r
 
 def main():
     num_bugzilla_issues = refresh_bugs()
-    num_github_issues = 900
+    num_github_issues = setup_github_repos()
     return render_template(
         'home.html',
         num_github_issues=num_github_issues,
@@ -342,6 +341,14 @@ def get_bugzilla_issues_by_query(query):
         result += f'<a href="{bug.weburl}">{bug.id}</a>: {bug.summary}</br></br>'
     return result
         
+def setup_github_repos():
+    total_issues = 0
+    for repo in repos:
+        github_repos.append(g.get_repo(f'dogtagpki/{repo}'))
+    for repo in github_repos:
+        for issue in repo.get_issues():
+            total_issues += 1
+    return total_issues
 
 if __name__ == "__main__":
     main()
