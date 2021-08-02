@@ -23,7 +23,3 @@ def bugzilla():
 @app.route("/bugzilla/<query>")
 def bugzilla_query(query):
     return main.get_bugzilla_issues_by_query(query)
-
-@app.route("/<name>")
-def foo(name):
-    return f'Hello, {name}!'

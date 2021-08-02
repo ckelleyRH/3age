@@ -10,7 +10,7 @@ from Queries import Queries
 from Repos import Repos
 from pygit2.callbacks import git_clone_options
 
-github_repos = []
+github_repos = {}
 bug_dict = {}
 sorted_bug_dict = {}
 URL = "bugzilla.redhat.com"
@@ -307,27 +307,13 @@ def refresh_bugs():
     return total_bugs
 
 def show_github_repos():
-    return """
-        <a href="http://127.0.0.1:5000/github/jss">JSS Issues</a>
-        </br>
-        <a href="http://127.0.0.1:5000/github/pki">PKI Issues</a>
-        </br>
-        <a href="http://127.0.0.1:5000/github/tomcatjss">TOMCATJSS Issues</a>
-    """
+    return render_template('github-repos.html', repos=github_repos)
+
 
 def show_github_repo_issues(repo):
-    if repo == "jss":
-        result = "<h1>All issues from Github for JSS:<br/></h1>"
-        for issue in jss_repo.get_issues():
-            result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'
-    if repo == "pki":
-        result = "<h1>All issues from Github for PKI:<br/></h1>"
-        for issue in pki_repo.get_issues():
-            result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'
-    if repo == "tomcatjss":
-        result = "<h1>All issues from Github for TOMCATJSS:<br/></h1>"
-        for issue in tomcatjss_repo.get_issues():
-            result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'                        
+    result = f'<h1>All issues from Github for {repo.upper()}:<br/></h1>'
+    for issue in repo.get_issues():
+        result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'                        
     return result
 
 def get_bugzilla_issues():
@@ -337,15 +323,16 @@ def get_bugzilla_issues():
 
 def get_bugzilla_issues_by_query(query):
     return render_template('query-report.html', query=query, bugs=bug_dict[query])
-
         
 def setup_github_repos():
     total_issues = 0
     for repo in repos:
-        github_repos.append(g.get_repo(f'dogtagpki/{repo}'))
-    for repo in github_repos:
-        for issue in repo.get_issues():
+        r = g.get_repo(f'dogtagpki/{repo}')
+        repo_issues = 0
+        for issue in r.get_issues():
             total_issues += 1
+            repo_issues += 1
+        github_repos[repo] = repo_issues
     return total_issues
 
 if __name__ == "__main__":

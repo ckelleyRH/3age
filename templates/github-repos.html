@@ -1,0 +1,16 @@
+<style>
+body {
+    background-color: black;
+    color: white;
+}
+a {color: forestgreen;}
+</style>
+<title>Github Repos</title>
+<table cellpadding="5" cellspacing="5">
+{% for repo in repos %}
+    <tr>
+        <th><a href="/github/{{ repo }}">{{ repo }} Issues</a></th>
+        <td> {{ repos[repo] }} </td>
+    </tr>
+{% endfor %}
+</table>
