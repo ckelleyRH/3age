@@ -50,6 +50,7 @@ If you would like this issue to be reconsidered by the development team please r
 def main():
     start_github()
     refresh_bugs()
+    print(bug_dict.keys())
     return """
         <h1>Welcome to 3age!</h1>
         </br>
@@ -322,6 +323,13 @@ def get_bugzilla_issues():
     if not bug_dict:
         refresh_bugs()
     return render_template('report-template.html', result=sorted_bug_dict)
+
+def get_bugzilla_issues_by_query(query):
+    result = ""
+    for bug in bug_dict[query]:
+        result += f'<a href="{bug.weburl}">{bug.id}</a>: {bug.summary}</br></br>'
+    return result
+        
 
 if __name__ == "__main__":
     main()

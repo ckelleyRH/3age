@@ -1,7 +1,7 @@
-<table>
+<table border="1" cellpadding="5" cellspacing="5">
 {% for key in result %}
     <tr>
-        <th> {{ key }} </th>
+        <th><a href="/bugzilla/{{ key }}">{{ key }}</a></th>
         <td> {{ result[key]|length }} </td>
     </tr>
 {% endfor %}
