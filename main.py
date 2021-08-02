@@ -17,6 +17,10 @@ bzapi = bugzilla.Bugzilla(URL)
 #bzapi.interactive_login()
 queries = set(query.name for query in Queries)
 issue_types = set(issue_type.value for issue_type in IssueTypes)
+g = Github("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")
+jss_repo = g.get_repo("dogtagpki/jss")
+pki_repo = g.get_repo("dogtagpki/pki")
+tomcatjss_repo = g.get_repo("dogtagpki/tomcatjss")
 
 options = """
 choose one of the following options:
@@ -48,7 +52,6 @@ If you would like this issue to be reconsidered by the development team please r
 """
 
 def main():
-    start_github()
     refresh_bugs()
     print(bug_dict.keys())
     return """
@@ -307,16 +310,28 @@ def refresh_bugs():
 
     return total_bugs != 0
 
-def start_github():
-    g = Github("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")
-    jss_repo = g.get_repo("dogtagpki/jss")
-    i = 0
-    result = "<h1>All issues from Github for JSS:<br/></h1>"
-    for issue in jss_repo.get_issues():
-        print(issue.title)
-        result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'
-        i += 1
-    print(i)
+def show_github_repos():
+    return """
+        <a href="http://127.0.0.1:5000/github/jss">JSS Issues</a>
+        </br>
+        <a href="http://127.0.0.1:5000/github/pki">PKI Issues</a>
+        </br>
+        <a href="http://127.0.0.1:5000/github/tomcatjss">TOMCATJSS Issues</a>
+    """
+
+def show_github_repo_issues(repo):
+    if repo == "jss":
+        result = "<h1>All issues from Github for JSS:<br/></h1>"
+        for issue in jss_repo.get_issues():
+            result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'
+    if repo == "pki":
+        result = "<h1>All issues from Github for PKI:<br/></h1>"
+        for issue in pki_repo.get_issues():
+            result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'
+    if repo == "tomcatjss":
+        result = "<h1>All issues from Github for TOMCATJSS:<br/></h1>"
+        for issue in tomcatjss_repo.get_issues():
+            result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'                        
     return result
 
 def get_bugzilla_issues():

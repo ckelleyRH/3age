@@ -10,7 +10,11 @@ def hello():
 
 @app.route("/github")
 def github():
-    return main.start_github()
+    return main.show_github_repos()
+
+@app.route("/github/<repo>")
+def github_issues(repo):
+    return main.show_github_repo_issues(repo)
 
 @app.route("/bugzilla")
 def bugzilla():
