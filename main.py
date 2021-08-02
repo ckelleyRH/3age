@@ -318,10 +318,6 @@ def start_github():
 
 def start_bugzilla():
     refresh_bugs()
-    #result = "<h1>All issues from Bugzilla:<br/></h1>"
-    #for key in sorted(bug_dict.keys()):
-    #    result += f'{key:<16}: {len(bug_dict[key]):>3}'
-    #return result
     return render_template('report-template.html',result=bug_dict)
 
 
