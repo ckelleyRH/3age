@@ -1,4 +1,12 @@
-<table border="1" cellpadding="5" cellspacing="5">
+<style>
+body {
+    background-color: black;
+    color: white;
+}
+a {color: forestgreen;}
+</style>
+<title>Bugzilla Issues</title>
+<table cellpadding="5" cellspacing="5">
 {% for key in result %}
     <tr>
         <th><a href="/bugzilla/{{ key }}">{{ key }}</a></th>
