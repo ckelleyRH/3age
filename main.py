@@ -4,17 +4,18 @@ import datetime
 import pprint
 import time
 
+from flask import render_template
 from IssueTypes import IssueTypes 
 from Queries import Queries
 from pygit2.callbacks import git_clone_options
 
 github_repos = []
 bug_dict = {}
-queries = set(query.name for query in Queries)
-issue_types = set(issue_type.value for issue_type in IssueTypes)
 URL = "bugzilla.redhat.com"
 bzapi = bugzilla.Bugzilla(URL)
 #bzapi.interactive_login()
+queries = set(query.name for query in Queries)
+issue_types = set(issue_type.value for issue_type in IssueTypes)
 
 options = """
 choose one of the following options:
@@ -46,16 +47,10 @@ If you would like this issue to be reconsidered by the development team please r
 """
 
 def main():
-    g = Github("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")
-    jss_repo = g.get_repo("dogtagpki/jss")
-    i = 0
-    for issue in jss_repo.get_issues():
-        print(issue.title)
-        i += 1
-    print(i)
-        
-        # to see all the available attributes and methods
-        #print(dir(repo))
+    start_github()
+    start_bugzilla()
+    return "<h1>Welcome to 3age!<h1>"
+
     #===========================================================================
     # proceed = True
     # print("Welcome to 3age!")
@@ -302,6 +297,27 @@ def refresh_bugs():
         print(f'{key:<16}: {len(bug_dict[key]):>3}')
 
     return total_bugs != 0
+
+def start_github():
+    g = Github("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")
+    jss_repo = g.get_repo("dogtagpki/jss")
+    i = 0
+    result = "<h1>All issues from Github for JSS:<br/></h1>"
+    for issue in jss_repo.get_issues():
+        print(issue.title)
+        result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'
+        i += 1
+    print(i)
+    return result
+
+def start_bugzilla():
+    refresh_bugs()
+    #result = "<h1>All issues from Bugzilla:<br/></h1>"
+    #for key in sorted(bug_dict.keys()):
+    #    result += f'{key:<16}: {len(bug_dict[key]):>3}'
+    #return result
+    return render_template('report-template.html',result=bug_dict)
+
 
 if __name__ == "__main__":
     main()

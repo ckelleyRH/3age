@@ -1,11 +1,20 @@
 # save this as app.py
 from flask import Flask
+import main
 
 app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "Hello, World!\n\n<h1>HELLOOOOOOOOO<h1>"
+    return main.main()
+
+@app.route("/github")
+def github():
+    return main.start_github()
+
+@app.route("/bugzilla")
+def bugzilla():
+    return main.start_bugzilla()
 
 @app.route("/<name>")
 def foo(name):
