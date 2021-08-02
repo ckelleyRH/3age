@@ -49,7 +49,13 @@ If you would like this issue to be reconsidered by the development team please r
 def main():
     start_github()
     start_bugzilla()
-    return "<h1>Welcome to 3age!<h1>"
+    return """
+        <h1>Welcome to 3age!</h1>
+        </br>
+        <a href="http://127.0.0.1:5000/github">Github Issues</a>
+        </br>
+        <a href="http://127.0.0.1:5000/bugzilla">Bugzilla Issues</a>
+        """
 
     #===========================================================================
     # proceed = True
