@@ -11,6 +11,7 @@ from pygit2.callbacks import git_clone_options
 
 github_repos = []
 bug_dict = {}
+sorted_bug_dict = {}
 URL = "bugzilla.redhat.com"
 bzapi = bugzilla.Bugzilla(URL)
 #bzapi.interactive_login()
@@ -301,6 +302,7 @@ def refresh_bugs():
                 bug_dict[issue_type.value] = bug_dict[key_name]
     for key in sorted(bug_dict.keys()):
         print(f'{key:<16}: {len(bug_dict[key]):>3}')
+        sorted_bug_dict[key] = bug_dict[key]
 
     return total_bugs != 0
 
@@ -319,7 +321,7 @@ def start_github():
 def get_bugzilla_issues():
     if not bug_dict:
         refresh_bugs()
-    return render_template('report-template.html', result=bug_dict)
+    return render_template('report-template.html', result=sorted_bug_dict)
 
 if __name__ == "__main__":
     main()
