@@ -329,7 +329,7 @@ def setup_github_repos():
     for repo in repos:
         r = g.get_repo(f'dogtagpki/{repo}')
         repo_issues = 0
-        for issue in r.get_issues():
+        for _ in r.get_issues():
             total_issues += 1
             repo_issues += 1
         github_repos[repo] = repo_issues
