@@ -14,7 +14,7 @@ def github():
 
 @app.route("/bugzilla")
 def bugzilla():
-    return main.start_bugzilla()
+    return main.get_bugzilla_issues()
 
 @app.route("/<name>")
 def foo(name):

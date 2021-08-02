@@ -48,7 +48,7 @@ If you would like this issue to be reconsidered by the development team please r
 
 def main():
     start_github()
-    start_bugzilla()
+    refresh_bugs()
     return """
         <h1>Welcome to 3age!</h1>
         </br>
@@ -316,10 +316,10 @@ def start_github():
     print(i)
     return result
 
-def start_bugzilla():
-    refresh_bugs()
-    return render_template('report-template.html',result=bug_dict)
-
+def get_bugzilla_issues():
+    if not bug_dict:
+        refresh_bugs()
+    return render_template('report-template.html', result=bug_dict)
 
 if __name__ == "__main__":
     main()
