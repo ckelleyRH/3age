@@ -2,6 +2,7 @@ import bugzilla
 from github import Github
 import datetime
 import pprint
+import os
 import time
 
 from flask import render_template
@@ -19,7 +20,12 @@ bzapi = bugzilla.Bugzilla(URL)
 queries = set(query.name for query in Queries)
 issue_types = set(issue_type.value for issue_type in IssueTypes)
 repos = set(repo.name for repo in Repos)
-g = Github("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")
+g = None
+
+with open(os.path.expanduser('~/github_pat'), 'rt') as file:
+    pat = file.read()
+    g = Github(pat.replace("\n", ""))
+    
 
 options = """
 choose one of the following options:
