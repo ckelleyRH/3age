@@ -1,0 +1,19 @@
+<head>
+    <link rel="icon" href="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/openmoji/292/medical-symbol_2695-fe0f.png">
+</head>
+<style>
+body {
+    background-color: black;
+    color: white;
+}
+a {color: forestgreen;}
+</style>
+<title>{{ repo }} Issues</title>
+<table cellpadding="5" cellspacing="5">
+{% for issue in issues %}
+    <tr>
+        <th><a href="{{ issue.html_url }}">{{ issue.number }}</a></th>
+        <td> {{ issue.title }} </td>
+    </tr>
+{% endfor %}
+</table>

@@ -317,10 +317,8 @@ def show_github_repos():
 
 
 def show_github_repo_issues(repo):
-    result = f'<h1>All issues from Github for {repo.upper()}:<br/></h1>'
-    for issue in repo.get_issues():
-        result += f'{issue.title}<br/><a href="{issue.html_url}">{issue.html_url}</a><br/><br/>'                        
-    return result
+    r = g.get_repo(f'dogtagpki/{repo}')
+    return render_template('repo-issues.html', repo=repo, issues=r.get_issues())
 
 def get_bugzilla_issues():
     if not bug_dict:
