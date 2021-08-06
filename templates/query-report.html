@@ -15,5 +15,19 @@ a {color: forestgreen;}
         <th><a href="{{ bug.weburl }}">{{ bug.id }}</a></th>
         <td> {{ bug.summary }} </td>
     </tr>
+    <tr>
+        <th>Creator</th>
+        <td> {{ bug.creator }} @ {{ bug.creation_time }} </td>
+    </tr>
+    <tr>
+        <th>Keywords</th>
+        <td> {{ bug.keywords }} </td>
+    </tr> 
+    {% for comment in bug.comments %}
+        <tr>
+            <th>Comments</th>
+            <td> {{ comment }} </td>
+        </tr>
+    {% endfor %} 
 {% endfor %}
 </table>
