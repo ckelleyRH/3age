@@ -22,3 +22,26 @@ a {color: forestgreen;}
         <td> {{ num_bugzilla_issues }} </td>
     </tr>
 </table>
+
+<p id="timer"></p>
+
+<script>
+// Set the date we're counting down to
+var numMins = 60 * 5
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+  numMins -= 1
+  // Time calculations for minutes and seconds
+  var minutes = Math.floor(numMins / 60);
+  var seconds = Math.floor(numMins % 60);
+
+  document.getElementById("timer").innerHTML = minutes + "m " + seconds + "s ";
+
+  if (numMins <= 0) {
+    clearInterval(x);
+    document.getElementById("timer").innerHTML = "Time to move on to the next bug!";
+  }
+}, 1000);
+</script>
