@@ -64,17 +64,15 @@ def main():
         num_github_issues=num_github_issues,
         num_bugzilla_issues=num_bugzilla_issues)
 
-    #===========================================================================
-    # proceed = True
-    # print("Welcome to 3age!")
-    # print("Creating initial bug dictionary:\n")
-    # proceed = refresh_bugs()
-    # while proceed:
-    #     print(options)
-    #     choice = input("What do you want to do? ")
-    #     proceed = handle_choice(choice)
-    # print("\nNo more bugs, time to go to the pub :-D")
-    #===========================================================================
+    #------------------------------------------------------------ proceed = True
+    #------------------------------------------------- print("Welcome to 3age!")
+    #------------------------------- print("Creating initial bug dictionary:\n")
+    #-------------------------------------------------- proceed = refresh_bugs()
+    #------------------------------------------------------------ while proceed:
+        #-------------------------------------------------------- print(options)
+        #---------------------------- choice = input("What do you want to do? ")
+        #--------------------------------------- proceed = handle_choice(choice)
+    #------------------------ print("\nNo more bugs, time to go to the pub :-D")
 
 def handle_choice(choice):
     proceed = True
@@ -265,7 +263,7 @@ def find_new_bugs(bugs):
     if len(bugs) > 0:
         for bug in bugs:
             creation_time = datetime.datetime.strptime(str(bug.creation_time), '%Y%m%dT%H:%M:%S')
-            if datetime.datetime.now() - creation_time < datetime.timedelta(days=14):
+            if datetime.datetime.now() - creation_time < datetime.timedelta(days=15):
                 result.append(bug)
     return result
 
@@ -274,7 +272,7 @@ def find_old_bugs(bugs):
     if len(bugs) > 0:
         for bug in bugs:
             creation_time = datetime.datetime.strptime(str(bug.creation_time), '%Y%m%dT%H:%M:%S')
-            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*7):
+            if datetime.datetime.now() - creation_time > datetime.timedelta(days=365*3.5):
                 result.append(bug)
     return result
 
