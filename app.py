@@ -23,3 +23,11 @@ def bugzilla():
 @app.route("/bugzilla/<query>")
 def bugzilla_query(query):
     return main.get_bugzilla_issues_by_query(query)
+
+@app.route("/cves")
+def cves():
+    return main.show_cves()
+
+@app.route("/cves/<keyword>")
+def cves_keyword(keyword):
+    return main.show_cves_by_keyword(keyword)

@@ -1,10 +1,13 @@
 import bugzilla
 from github import Github
 import datetime
+import json
 import pprint
 import os
 import time
+import urllib.request
 
+from cves import cves
 from flask import render_template
 from IssueTypes import IssueTypes 
 from Queries import Queries
@@ -14,6 +17,7 @@ from pygit2.callbacks import git_clone_options
 github_repos = {}
 bug_dict = {}
 sorted_bug_dict = {}
+cve_dict = {}
 URL = "bugzilla.redhat.com"
 bzapi = bugzilla.Bugzilla(URL)
 #bzapi.interactive_login()
@@ -59,10 +63,12 @@ If you would like this issue to be reconsidered by the development team please r
 def main():
     num_bugzilla_issues = refresh_bugs()
     num_github_issues = setup_github_repos()
+    num_cve_issues = get_cves()
     return render_template(
         'home.html',
         num_github_issues=num_github_issues,
-        num_bugzilla_issues=num_bugzilla_issues)
+        num_bugzilla_issues=num_bugzilla_issues,
+        num_cve_issues=num_cve_issues)
 
     #------------------------------------------------------------ proceed = True
     #------------------------------------------------- print("Welcome to 3age!")
@@ -325,7 +331,10 @@ def get_bugzilla_issues():
 
 def get_bugzilla_issues_by_query(query):
     return render_template('query-report.html', query=query, bugs=bug_dict[query])
-        
+
+def show_cves_by_keyword(keyword):
+    return render_template('cve-keyword-report.html', keyword=keyword, cves=cve_dict[keyword]["result"]["CVE_Items"])
+
 def setup_github_repos():
     total_issues = 0
     for repo in repos:
@@ -335,7 +344,20 @@ def setup_github_repos():
             total_issues += 1
             repo_issues += 1
         github_repos[repo] = repo_issues
+        print(f'{repo}: {repo_issues}')
     return total_issues
+
+def show_cves():
+    return render_template('cve-report.html', keywords=cves.keywords, cve_dict=cve_dict)
+
+def get_cves():
+    num_issues = 0
+    for kw in cves.keywords:
+        with urllib.request.urlopen(cves.cve_url + kw) as url:
+            cve_dict[kw] = json.loads(url.read().decode())
+            print(f'{kw}: {cve_dict[kw]["totalResults"]}')
+            num_issues += cve_dict[kw]["totalResults"]
+    return num_issues
 
 if __name__ == "__main__":
     main()
